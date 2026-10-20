@@ -25,7 +25,6 @@ export function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>('hoy')
   const [selectedDayForRoutines, setSelectedDayForRoutines] = useState<string>('lunes-pecho-triceps')
 
-  // Modals state
   const [activeExerciseModal, setActiveExerciseModal] = useState<Exercise | null>(null)
   const [plateCalcOpen, setPlateCalcOpen] = useState(false)
   const [plateCalcInitialWeight, setPlateCalcInitialWeight] = useState<number>(100)
@@ -33,20 +32,17 @@ export function App() {
   const [routineEditorOpen, setRoutineEditorOpen] = useState(false)
   const [routineToEdit, setRoutineToEdit] = useState<WorkoutDay | null>(null)
 
-  // Desktop routine builder request
   const [builderRequest, setBuilderRequest] = useState<{ routineId: string | null; token: number }>({
     routineId: null,
     token: 0
   })
 
-  // Prevent staying on admin/builder tabs after switching to a non-admin profile
   useEffect(() => {
     if (!store.isAdmin && (currentTab === 'admin' || currentTab === 'builder')) {
       setCurrentTab('hoy')
     }
   }, [store.isAdmin, currentTab])
 
-  // If not logged in, render the Login / Welcome Screen
   if (!store.isLoggedIn) {
     return (
       <LoginScreen
@@ -58,7 +54,6 @@ export function App() {
     )
   }
 
-  // Start Workout and switch to Active Tab
   const handleStartWorkout = (dayId: string) => {
     store.startWorkout(dayId)
     setCurrentTab('activo')
@@ -113,7 +108,6 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-slate-100 flex flex-col lg:flex-row selection:bg-amber-500 selection:text-slate-950 font-['Plus_Jakarta_Sans',sans-serif]">
-      {/* Desktop Sidebar Navigation */}
       <DesktopSidebar
         currentTab={currentTab}
         onTabChange={setCurrentTab}
@@ -124,7 +118,6 @@ export function App() {
       />
 
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Top Mobile Navbar */}
         <Navbar
           activeSessionActive={!!store.activeSession}
           onNavigateActive={() => setCurrentTab('activo')}
@@ -133,7 +126,6 @@ export function App() {
           wide={currentTab === 'admin'}
         />
 
-        {/* Main Content Area (Mobile-first, expands on Desktop) */}
         <main
           className={`flex-1 w-full mx-auto px-4 pt-4 pb-20 lg:px-8 lg:pt-6 lg:pb-10 ${
             isWideTab ? 'max-w-7xl' : 'max-w-md lg:max-w-7xl'
@@ -265,7 +257,6 @@ export function App() {
         </main>
       </div>
 
-      {/* Floating Rest Timer */}
       <FloatingRestTimer
         timer={store.restTimer}
         onStop={store.stopRestTimer}
@@ -273,7 +264,6 @@ export function App() {
         onToggleMinimize={store.toggleRestTimerMinimized}
       />
 
-      {/* Exercise Detail & Hyperlinks Modal */}
       <ExerciseModal
         exercise={activeExerciseModal}
         isOpen={!!activeExerciseModal}
@@ -285,14 +275,12 @@ export function App() {
         onToggleAlternative={store.toggleExerciseAlternative}
       />
 
-      {/* Plate Calculator Modal */}
       <PlateCalculatorModal
         isOpen={plateCalcOpen}
         onClose={() => setPlateCalcOpen(false)}
         initialWeight={plateCalcInitialWeight}
       />
 
-      {/* Profile Switcher Modal */}
       <ProfileSwitcherModal
         isOpen={profileModalOpen}
         onClose={() => setProfileModalOpen(false)}
@@ -303,7 +291,6 @@ export function App() {
         onDeleteProfile={store.deleteProfile}
       />
 
-      {/* Routine Editor Modal (Custom Routines & Exercises) */}
       <RoutineEditorModal
         isOpen={routineEditorOpen}
         onClose={() => {
@@ -315,7 +302,6 @@ export function App() {
         routineToEdit={routineToEdit}
       />
 
-      {/* Mobile Fixed Bottom Navigation Bar */}
       <ProgressTable />
       <BottomNav
         currentTab={currentTab}
@@ -330,16 +316,16 @@ export function App() {
 export default App
 
 function ProgressTable() {
-  const summaryCards = [
-    { label: 'Fuerza', value: '+18%', bar: [38, 52, 72, 60, 88, 100] },
-    { label: 'Resistencia', value: '+12%', bar: [30, 40, 58, 75, 66, 80] },
-    { label: 'Volumen', value: '+8.2%', bar: [22, 34, 49, 70, 63, 92] },
+  const cards = [
+    { label: 'Fuerza', value: '+18%', bars: [52, 68, 72, 61, 90, 100] },
+    { label: 'Resistencia', value: '+12%', bars: [38, 45, 58, 76, 66, 84] },
+    { label: 'Volumen', value: '+8.2%', bars: [28, 36, 52, 70, 64, 93] },
   ]
 
-  const comparisonRows = [
-    { metric: 'Sentadilla Libre (Squat)', previous: '80 kg', current: '95 kg', delta: '+15 kg 🚀' },
-    { metric: 'Press de Banca (Bench)', previous: '60 kg', current: '70 kg', delta: '+10 kg 💪' },
-    { metric: 'Peso Corporal', previous: '75.5 kg', current: '74.2 kg', delta: '-1.3 kg 📉' },
+  const rows = [
+    { metric: 'Sentadilla Libre (Squat)', previous: '80 kg', current: '95 kg', delta: '+15 kg' },
+    { metric: 'Press de Banca (Bench)', previous: '60 kg', current: '70 kg', delta: '+10 kg' },
+    { metric: 'Peso Corporal', previous: '75.5 kg', current: '74.2 kg', delta: '-1.3 kg' },
   ]
 
   return (
@@ -347,115 +333,102 @@ function ProgressTable() {
       style={{
         position: 'relative',
         margin: '20px',
-        borderRadius: '16px',
-        background: 'linear-gradient(180deg, rgba(9, 13, 22, 0.96), rgba(12, 20, 30, 0.98))',
-        border: '1px solid rgba(148, 163, 184, 0.18)',
-        boxShadow: '0 30px 60px rgba(0,0,0,0.45)',
-        color: '#f8fafc',
+        borderRadius: '22px',
         overflow: 'hidden',
+        background: 'linear-gradient(180deg, rgba(8, 12, 19, 0.96), rgba(11, 18, 28, 0.98))',
+        border: '1px solid rgba(148, 163, 184, 0.16)',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.52)',
+        fontFamily: 'Inter, Segoe UI, sans-serif',
       }}
     >
       <div
         style={{
-          padding: '18px 22px 10px',
-          borderBottom: '1px solid rgba(148, 163, 184, 0.12)',
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '12px',
-          background: 'rgba(15, 23, 42, 0.7)',
+          alignItems: 'center',
+          padding: '16px 22px',
+          borderBottom: '1px solid rgba(148, 163, 184, 0.12)',
+          background: 'rgba(15, 23, 42, 0.8)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span
             style={{
               width: '10px',
               height: '10px',
-              borderRadius: '999px',
               display: 'inline-block',
-              background: '#5ec9ff',
-              boxShadow: '0 0 18px rgba(94, 201, 255, 0.8)',
+              borderRadius: '999px',
+              background: '#5fd7ff',
+              boxShadow: '0 0 18px rgba(95, 215, 255, 0.9)',
             }}
           />
-          <span style={{ fontSize: '12px', color: '#9fb3c8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '11px', letterSpacing: '0.12em', color: '#9eb7c8', textTransform: 'uppercase' }}>
             Dashboard
           </span>
         </div>
-        <span style={{ fontSize: '12px', color: '#9fb3c8' }}>Últimos 30 días</span>
+        <span style={{ color: '#9eb7c8', fontSize: '12px' }}>Últimos 30 días</span>
       </div>
 
-      <div style={{ padding: '18px 22px 12px' }}>
-        <div style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px', color: '#edf6ff' }}>
+      <div style={{ padding: '22px 22px 12px' }}>
+        <div style={{ fontSize: '18px', color: '#edf6ff', fontWeight: 700, marginBottom: '8px' }}>
           dando resultados.
         </div>
         <h2
           style={{
-            margin: '0 0 20px',
+            margin: '0 0 22px',
             fontSize: '28px',
+            lineHeight: '1.2',
             fontWeight: 800,
-            lineHeight: 1.2,
             color: '#f8fbff',
           }}
         >
           Nuevo módulo: informes y comparativas de progreso
         </h2>
 
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.15fr 1fr',
-            gap: '18px',
-          }}
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: '1.25fr 1fr', gap: '18px' }}>
           <div
             style={{
-              background: 'rgba(15, 23, 42, 0.88)',
-              border: '1px solid rgba(148, 163, 184, 0.15)',
-              borderRadius: '12px',
+              background: 'rgba(15, 23, 42, 0.86)',
+              border: '1px solid rgba(148, 163, 184, 0.14)',
+              borderRadius: '16px',
               overflow: 'hidden',
             }}
           >
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '12px',
-                padding: '14px',
-              }}
-            >
-              {summaryCards.map((card) => (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', padding: '14px' }}>
+              {cards.map((card) => (
                 <div
                   key={card.label}
                   style={{
-                    background: 'rgba(255,255,255,0.02)',
+                    background: 'rgba(255,255,255,0.025)',
                     border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: '10px',
+                    borderRadius: '12px',
                     padding: '12px',
+                    minHeight: '148px',
                   }}
                 >
                   <div
                     style={{
                       display: 'flex',
-                      alignItems: 'center',
                       justifyContent: 'space-between',
+                      alignItems: 'center',
                       marginBottom: '12px',
+                      color: '#a9bfd1',
                       fontSize: '12px',
-                      color: '#9fb3c8',
                     }}
                   >
                     <span>{card.label}</span>
                     <span style={{ color: '#7ee7d0', fontWeight: 700 }}>{card.value}</span>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '7px', height: '124px' }}>
-                    {card.bar.map((height, index) => (
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: '7px', height: '100px' }}>
+                    {card.bars.map((height, index) => (
                       <span
                         key={`${card.label}-${index}`}
                         style={{
                           flex: 1,
                           height: `${height}%`,
-                          borderRadius: '6px 6px 0 0',
-                          background: 'linear-gradient(180deg, #9ae6ff 0%, #2d9bf2 100%)',
-                          opacity: index % 2 === 0 ? 0.95 : 0.8,
+                          borderRadius: '8px 8px 0 0',
+                          background: index % 2 === 0 ? 'linear-gradient(180deg, #8fe8ff 0%, #2c97f3 100%)' : 'linear-gradient(180deg, #7de7d0 0%, #21a7a0 100%)',
+                          boxShadow: 'inset 0 -4px 10px rgba(0,0,0,0.12)',
                         }}
                       />
                     ))}
@@ -466,12 +439,12 @@ function ProgressTable() {
 
             <div
               style={{
-                margin: '12px 14px 16px',
-                height: '200px',
-                borderRadius: '10px',
-                background: 'rgba(15, 23, 42, 0.55)',
-                border: '1px solid rgba(148, 163, 184, 0.1)',
                 position: 'relative',
+                margin: '12px 14px 16px',
+                height: '190px',
+                borderRadius: '12px',
+                background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(11, 17, 27, 0.8))',
+                border: '1px solid rgba(148, 163, 184, 0.1)',
                 overflow: 'hidden',
               }}
             >
@@ -484,9 +457,9 @@ function ProgressTable() {
                   backgroundSize: '24px 24px',
                 }}
               />
-              <svg viewBox="0 0 600 200" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+              <svg viewBox="0 0 600 190" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
                 <path
-                  d="M0,150 L90,138 L160,120 L220,126 L300,106 L380,86 L470,96 L600,48"
+                  d="M0,145 L80,128 L150,118 L220,128 L300,100 L380,78 L470,92 L600,42"
                   fill="none"
                   stroke="#69d8ff"
                   strokeWidth="4"
@@ -499,20 +472,20 @@ function ProgressTable() {
 
           <div
             style={{
-              background: 'rgba(15, 23, 42, 0.88)',
-              border: '1px solid rgba(148, 163, 184, 0.15)',
-              borderRadius: '12px',
+              background: 'rgba(15, 23, 42, 0.86)',
+              border: '1px solid rgba(148, 163, 184, 0.14)',
+              borderRadius: '16px',
               overflow: 'hidden',
             }}
           >
             <div
               style={{
                 display: 'flex',
-                alignItems: 'center',
                 justifyContent: 'space-between',
+                alignItems: 'center',
                 padding: '12px 14px',
                 borderBottom: '1px solid rgba(148, 163, 184, 0.12)',
-                color: '#9fb3c8',
+                color: '#a9bfd1',
                 fontSize: '12px',
               }}
             >
@@ -521,9 +494,9 @@ function ProgressTable() {
                   style={{
                     width: '8px',
                     height: '8px',
+                    display: 'inline-block',
                     borderRadius: '999px',
                     background: '#7ee7d0',
-                    display: 'inline-block',
                     boxShadow: '0 0 16px rgba(126, 231, 208, 0.8)',
                   }}
                 />
@@ -535,10 +508,10 @@ function ProgressTable() {
             <div
               style={{
                 position: 'relative',
-                margin: '14px',
-                height: '260px',
-                borderRadius: '10px',
-                background: 'rgba(15, 23, 42, 0.7)',
+                height: '250px',
+                margin: '12px 14px',
+                borderRadius: '12px',
+                background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.72), rgba(11, 17, 27, 0.8))',
                 border: '1px solid rgba(148, 163, 184, 0.08)',
                 overflow: 'hidden',
               }}
@@ -554,7 +527,7 @@ function ProgressTable() {
               />
               <svg viewBox="0 0 600 260" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
                 <path
-                  d="M0,200 L80,190 L160,180 L240,165 L320,128 L420,150 L500,98 L600,62"
+                  d="M0,205 L80,196 L160,186 L240,170 L320,130 L420,154 L500,96 L600,64"
                   fill="none"
                   stroke="#7ee7d0"
                   strokeWidth="3"
@@ -562,13 +535,13 @@ function ProgressTable() {
                   strokeLinejoin="round"
                 />
                 <path
-                  d="M0,220 L90,215 L180,208 L260,198 L330,170 L430,180 L530,145 L600,120"
+                  d="M0,225 L90,220 L180,212 L260,198 L330,172 L430,182 L530,144 L600,124"
                   fill="none"
                   stroke="#8ec5ff"
                   strokeWidth="2.3"
+                  opacity={0.9}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  opacity={0.9}
                 />
               </svg>
             </div>
@@ -578,23 +551,26 @@ function ProgressTable() {
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
                 gap: '12px',
-                padding: '0 14px 14px',
+                padding: '0 14px 16px',
               }}
             >
-              {['Volumen', 'Consistencia'].map((label, index) => (
+              {[
+                { label: 'Volumen', value: '+8.2%' },
+                { label: 'Consistencia', value: '84%' },
+              ].map((item) => (
                 <div
-                  key={label}
+                  key={item.label}
                   style={{
                     background: 'rgba(255,255,255,0.02)',
                     border: '1px solid rgba(255,255,255,0.06)',
-                    borderRadius: '10px',
+                    borderRadius: '12px',
                     padding: '12px',
-                    minHeight: '88px',
+                    minHeight: '86px',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#9fb3c8' }}>
-                    <span>{label}</span>
-                    <span style={{ color: '#8ee8cf', fontWeight: 700 }}>{index === 0 ? '+8.2%' : '84%'}</span>
+                  <div style={{ fontSize: '12px', color: '#a9bfd1', display: 'flex', justifyContent: 'space-between' }}>
+                    <span>{item.label}</span>
+                    <span style={{ color: '#8ee8cf', fontWeight: 700 }}>{item.value}</span>
                   </div>
                 </div>
               ))}
@@ -610,14 +586,14 @@ function ProgressTable() {
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '18px' }}>
             <div
               style={{
-                background: 'rgba(15, 23, 42, 0.8)',
+                background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.85), rgba(12, 17, 28, 0.9))',
                 border: '1px solid rgba(148, 163, 184, 0.12)',
-                borderRadius: '12px',
+                borderRadius: '14px',
                 padding: '16px 18px',
+                minHeight: '82px',
                 display: 'flex',
-                alignItems: 'center',
                 justifyContent: 'space-between',
-                minHeight: '78px',
+                alignItems: 'center',
                 fontWeight: 700,
               }}
             >
@@ -627,14 +603,14 @@ function ProgressTable() {
 
             <div
               style={{
-                background: 'rgba(15, 23, 42, 0.8)',
+                background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.85), rgba(12, 17, 28, 0.9))',
                 border: '1px solid rgba(148, 163, 184, 0.12)',
-                borderRadius: '12px',
+                borderRadius: '14px',
                 padding: '16px 18px',
+                minHeight: '82px',
                 display: 'flex',
-                alignItems: 'center',
                 justifyContent: 'space-between',
-                minHeight: '78px',
+                alignItems: 'center',
                 fontWeight: 700,
               }}
             >
@@ -653,6 +629,7 @@ function ProgressTable() {
                   borderRadius: '12px',
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 10px 24px rgba(0,0,0,0.18)',
                 }}
               />
             ))}
@@ -662,28 +639,27 @@ function ProgressTable() {
 
       <div
         style={{
-          width: '100%',
+          padding: '14px 22px 18px',
           borderTop: '1px solid rgba(148, 163, 184, 0.12)',
-          background: 'rgba(9, 13, 22, 0.8)',
-          padding: '12px 22px 18px',
+          background: 'rgba(9, 13, 22, 0.82)',
         }}
       >
         <table style={{ width: '100%', borderCollapse: 'collapse', color: '#e2e8f0' }}>
           <thead>
             <tr style={{ background: 'rgba(30, 41, 59, 0.72)', color: '#7ee7d0' }}>
-              <th style={{ padding: '10px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 700 }}>Ejercicio / Métrica</th>
-              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>Mes Anterior</th>
-              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>Mes Actual</th>
-              <th style={{ padding: '10px 12px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>Progreso</th>
+              <th style={{ padding: '12px 14px', textAlign: 'left', fontSize: '12px', fontWeight: 700 }}>Ejercicio / Métrica</th>
+              <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>Mes Anterior</th>
+              <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>Mes Actual</th>
+              <th style={{ padding: '12px 14px', textAlign: 'center', fontSize: '12px', fontWeight: 700 }}>Progreso</th>
             </tr>
           </thead>
           <tbody>
-            {comparisonRows.map((row) => (
-              <tr key={row.metric} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.1)' }}>
-                <td style={{ padding: '10px 12px', fontSize: '14px' }}>{row.metric}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', color: '#cbd5e1' }}>{row.previous}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', color: '#cbd5e1' }}>{row.current}</td>
-                <td style={{ padding: '10px 12px', textAlign: 'center', color: '#7ee7d0', fontWeight: 700 }}>{row.delta}</td>
+            {rows.map((row) => (
+              <tr key={row.metric} style={{ borderBottom: '1px solid rgba(148, 163, 184, 0.08)' }}>
+                <td style={{ padding: '11px 14px', fontSize: '14px', fontWeight: 500 }}>{row.metric}</td>
+                <td style={{ padding: '11px 14px', textAlign: 'center', color: '#cbd5e1' }}>{row.previous}</td>
+                <td style={{ padding: '11px 14px', textAlign: 'center', color: '#cbd5e1' }}>{row.current}</td>
+                <td style={{ padding: '11px 14px', textAlign: 'center', color: '#7ee7d0', fontWeight: 700 }}>{row.delta}</td>
               </tr>
             ))}
           </tbody>
